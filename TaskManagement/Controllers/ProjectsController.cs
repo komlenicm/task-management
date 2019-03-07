@@ -151,10 +151,25 @@ namespace TaskManagement.Controllers
 
             if (ModelState.IsValid) {
 
-                //Getting values from text fields and adding them into DB
-                db.Projects.Add(project);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                Project currentProject = db.Projects.Where(x => x.ProjectCode == project.ProjectCode).SingleOrDefault();
+
+
+                //Debug.WriteLine(currentProject.ProjectCode);
+
+                if (currentProject == null) {
+                    
+                    //Getting values from text fields and adding them into DB
+                    db.Projects.Add(project);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                    
+                } else {
+
+                    Debug.WriteLine("Project Exists");
+
+
+                }
+                
             }
 
             //Checking if logged User is Administrator,
@@ -182,6 +197,9 @@ namespace TaskManagement.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Project project = db.Projects.Find(id);
+
+
+
             if (project == null) {
                 return HttpNotFound();
             }
@@ -190,7 +208,7 @@ namespace TaskManagement.Controllers
             // if TRUE: Pass list of Managers to Edit View (Administrators must select Project Managers to lead the project)
             if (IsAdministratorUser()) {
 
-                ViewBag.UserId = new SelectList(db.Users.Where(o => o.Roles.Any(r => r.RoleId == "d71c3679-ada7-4a18-a188-17387c6e2688")), "Id", "UserName");
+                ViewBag.UserId = new SelectList(db.Users.Where(o => o.Roles.Any(r => r.RoleId == "d71c3679-ada7-4a18-a188-17387c6e2688")), "Id", "UserName", project.UserId);
                 return View(project);
             }
 

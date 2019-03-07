@@ -103,9 +103,9 @@ namespace TaskManagement.Controllers
                 return HttpNotFound();
             }
 
-
             //Passing roles list to View page
-            ViewBag.RoleId = new SelectList(db.Roles, "Id", "Name");
+            //Edit 07.03.2019 == Shows default role as selected value
+            ViewBag.RoleId = new SelectList(db.Roles.Where(o => o.Users.Any(r => r.UserId == user.Id)), "Id", "Name");
 
             return View(user);
         }
@@ -126,7 +126,13 @@ namespace TaskManagement.Controllers
                 return RedirectToAction("Index");
 
             }
+
+            //var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
+            //var s = UserManager.GetRoles(user.Id);
+            //var currentRole = s[0].ToString();
+
             
+
             //Passing roles list to View page
             ViewBag.RoleId = new SelectList(db.Roles, "Id", "Name");
 

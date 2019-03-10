@@ -60,6 +60,8 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Manage users<span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
+                                <li>@Html.ActionLink("Assign role", "AssignRole", "Users")</li>
+                                <li class="divider"></li>
                                 <li>@Html.ActionLink("List of users", "Index", "Users")</li>
                             </ul>
                         </li>

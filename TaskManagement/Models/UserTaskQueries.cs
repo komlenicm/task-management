@@ -18,5 +18,7 @@ namespace TaskManagement.Models {
         public int NumberOfTasks { get; set; }
         public virtual Tasks Tasks { get; set; }
 
+        
+
     }
 }

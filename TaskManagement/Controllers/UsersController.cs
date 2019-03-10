@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -25,6 +26,58 @@ namespace TaskManagement.Controllers
             
             return View(users);
         }
+
+
+        [Authorize(Roles = "Administrator")]
+        public ActionResult AssignRole()
+        {
+            var listUsers = db.Users.Select(u => new SelectListItem { Value = u.UserName.ToString(), Text = u.UserName }).ToList();
+            var listRoles = db.Roles.Select(r => new SelectListItem { Value = r.Name.ToString(), Text = r.Name }).ToList();
+
+            ViewBag.Users = listUsers;
+            ViewBag.Roles = listRoles;
+
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator")]
+        public ActionResult AssignRole(string UserName, string RoleName)
+        {
+
+            ApplicationUser user = db.Users.Where(u => u.UserName.Equals(UserName, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
+           
+            
+            var currentRoleOfUser = userManager.GetRoles(user.Id).Single();
+
+            if (currentRoleOfUser == RoleName) {
+
+                System.Diagnostics.Debug.WriteLine("User already have that role.");
+
+            } else {
+
+                userManager.RemoveFromRole(user.Id, currentRoleOfUser);
+                userManager.AddToRole(user.Id, RoleName);
+
+            }
+            
+
+            // Passing list of users and roles to DropDown
+            var listUsers = db.Users.Select(u => new SelectListItem { Value = u.UserName.ToString(), Text = u.UserName }).ToList();
+            var listRoles = db.Roles.OrderBy(r => r.Name).ToList().Select(rr => new SelectListItem { Value = rr.Name.ToString(), Text = rr.Name }).ToList();
+
+            ViewBag.Users = listUsers;
+            ViewBag.Roles = listRoles;
+            
+            return View();
+        }
+
+
+
 
         [Authorize(Roles = "Administrator")]
         public ActionResult Details(string Id) {
@@ -99,13 +152,11 @@ namespace TaskManagement.Controllers
             //Selecting specific user from DB
             var user = db.Users.Find(Id);
 
+            
+
             if (user.Equals(null)) {
                 return HttpNotFound();
             }
-
-            //Passing roles list to View page
-            //Edit 07.03.2019 == Shows default role as selected value
-            ViewBag.RoleId = new SelectList(db.Roles.Where(o => o.Users.Any(r => r.UserId == user.Id)), "Id", "Name");
 
             return View(user);
         }
@@ -120,6 +171,8 @@ namespace TaskManagement.Controllers
 
             if (ModelState.IsValid) {
 
+                
+
                 //If model is valid, edit user
                 db.Entry(user).State = EntityState.Modified;
                 db.SaveChanges();
@@ -127,18 +180,10 @@ namespace TaskManagement.Controllers
 
             }
 
-            //var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
-            //var s = UserManager.GetRoles(user.Id);
-            //var currentRole = s[0].ToString();
-
-            
-
-            //Passing roles list to View page
-            ViewBag.RoleId = new SelectList(db.Roles, "Id", "Name");
-
             return View(user);
             
         }
+
 
     }
 }

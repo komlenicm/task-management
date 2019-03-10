@@ -22,7 +22,7 @@ namespace TaskManagement.Controllers
         {
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
@@ -52,6 +52,7 @@ namespace TaskManagement.Controllers
             }
         }
 
+        
         //
         // GET: /Account/Login
         [AllowAnonymous]
@@ -139,6 +140,7 @@ namespace TaskManagement.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
+            
             return View();
         }
 
